@@ -7,10 +7,11 @@ const PORT = process.env.PORT || 3000;
 
 // Create an HTTP server
 const server = http.createServer((req, res) => {
-    // Enable CORS for all origins
-    res.setHeader('Access-Control-Allow-Origin', '*'); // Allow all origins
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS'); // Allow specific methods
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, X-Requested-With'); // Allow specific headers
+    // Update CORS headers to specifically allow your frontend domain
+    res.setHeader('Access-Control-Allow-Origin', 'https://fresh-front.vercel.app');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, X-Requested-With');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
 
     if (req.method === 'OPTIONS') {
         // Handle preflight requests

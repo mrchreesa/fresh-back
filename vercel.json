@@ -8,13 +8,15 @@
     ],
     "routes": [
       {
-        "src": "/submit-form",
-        "methods": ["POST", "OPTIONS"],
-        "dest": "/server.js"
-      },
-      {
         "src": "/(.*)",
-        "dest": "/server.js"
+        "dest": "/server.js",
+        "methods": ["GET", "POST", "OPTIONS"],
+        "headers": {
+          "Access-Control-Allow-Origin": "https://fresh-front.vercel.app",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Accept, X-Requested-With",
+          "Access-Control-Allow-Credentials": "true"
+        }
       }
     ]
 }
