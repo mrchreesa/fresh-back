@@ -1,57 +1,34 @@
-const http = require('http');
-const url = require('url');
-const querystring = require('querystring');
-const cors = require('cors'); // Import the cors package
+const express = require('express');
+const cors = require('cors');
+const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-// Create an HTTP server
-const server = http.createServer((req, res) => {
-    // Update CORS headers to specifically allow your frontend domain
-    res.setHeader('Access-Control-Allow-Origin', 'https://fresh-front.vercel.app');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, X-Requested-With');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
+// Configure CORS middleware
+app.use(cors({
+    origin: 'https://fresh-front.vercel.app',
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Accept', 'X-Requested-With'],
+    credentials: true
+}));
 
-    if (req.method === 'OPTIONS') {
-        // Handle preflight requests
-        res.writeHead(204);
-        res.end();
-        return;
-    }
+// Parse JSON and URL-encoded bodies
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-    if (req.method === 'POST' && req.url === '/submit-form') {
-        let body = '';
-        
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-        
-        req.on('end', () => {
-            let formData;
-            const contentType = req.headers['content-type'];
-            
-            if (contentType && contentType.includes('multipart/form-data')) {
-                // Handle multipart form data
-                // You might want to use a library like 'multiparty' for this
-                formData = body; // You'll need to parse this properly
-            } else {
-                // Handle URL-encoded data
-                formData = querystring.parse(body);
-            }
-            
-            console.log('Form Data:', formData);
-            res.writeHead(200, { 'Content-Type': 'text/plain' });
-            res.end('Form submitted successfully!');
-        });
-    } else {
-        // Handle other routes or methods
-        res.writeHead(404, { 'Content-Type': 'text/plain' });
-        res.end('Not Found');
-    }
+// Handle form submission
+app.post('/submit-form', (req, res) => {
+    const formData = req.body;
+    console.log('Form Data:', formData);
+    res.status(200).send('Form submitted successfully!');
+});
+
+// Handle 404
+app.use((req, res) => {
+    res.status(404).send('Not Found');
 });
 
 // Start the server
-server.listen(PORT, () => {
+app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
