@@ -2,32 +2,31 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 
-// Add debug logging
-app.use((req, res, next) => {
-    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-    next();
-});
-
-const PORT = process.env.PORT || 3000;
-
-// Configure CORS middleware
-app.use(cors({
-    origin: 'https://fresh-front.vercel.app',
+// CORS configuration
+const corsOptions = {
+    origin: ['https://fresh-front.vercel.app', 'http://localhost:3000'],
     methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Accept', 'X-Requested-With'],
-    credentials: true
-}));
+    allowedHeaders: ['Content-Type', 'Accept'],
+    credentials: true,
+    optionsSuccessStatus: 200 // Important for legacy browser support
+};
 
-// Parse JSON and URL-encoded bodies
+// Apply CORS middleware
+app.use(cors(corsOptions));
+
+// Parse JSON bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Add a test endpoint
+// Add preflight handler
+app.options('*', cors(corsOptions));
+
+// Test endpoint
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'Server is running' });
 });
 
-// Handle form submission
+// Form submission endpoint
 app.post('/submit-form', (req, res) => {
     console.log('Received form submission:', req.body);
     try {
@@ -45,7 +44,4 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'Something broke!' });
 });
 
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+module.exports = app;
