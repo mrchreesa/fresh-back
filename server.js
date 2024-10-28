@@ -1,86 +1,51 @@
 const express = require('express');
 const cors = require('cors');
+
+// Create express app
 const app = express();
 
-// Basic logging middleware
-app.use((req, res, next) => {
-    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-    next();
-});
-
 // CORS configuration
-const corsOptions = {
-    origin: ['https://fresh-front.vercel.app', 'http://localhost:3000'],
+app.use(cors({
+    origin: 'https://fresh-front.vercel.app',
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Accept'],
-    credentials: true,
-    optionsSuccessStatus: 200 // Important for legacy browser support
-};
+    credentials: true
+}));
 
-// Apply CORS middleware
-app.use(cors(corsOptions));
-
-// Parse JSON bodies
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-    try {
-        res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
-    } catch (error) {
-        console.error('Health check failed:', error);
-        res.status(500).json({ error: 'Health check failed' });
-    }
+// Test route
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok' });
 });
 
-// Form submission endpoint
-app.post('/submit-form', async (req, res) => {
+// Form submission route
+app.post('/submit-form', (req, res) => {
     try {
-        console.log('Received form data:', req.body);
+        // Log the received data
+        console.log('Form data received:', req.body);
         
-        // Validate the request body
-        if (!req.body) {
-            throw new Error('No form data received');
-        }
-
         // Send success response
         res.status(200).json({
             success: true,
-            message: 'Form submitted successfully',
-            data: req.body
+            message: 'Form submitted successfully'
         });
-
     } catch (error) {
-        console.error('Form submission error:', error);
+        console.error('Error:', error);
         res.status(500).json({
             success: false,
-            error: error.message || 'Internal server error'
+            message: 'Internal server error'
         });
     }
 });
 
-// 404 handler
-app.use((req, res) => {
-    res.status(404).json({ error: 'Not Found' });
-});
-
-// Error handling middleware
+// Error handling
 app.use((err, req, res, next) => {
-    console.error('Server error:', err);
-    res.status(500).json({
-        success: false,
-        error: 'Server error occurred',
-        details: process.env.NODE_ENV === 'development' ? err.message : undefined
-    });
+    console.error(err.stack);
+    res.status(500).json({ error: 'Something broke!' });
 });
 
-// Only start the server if not being imported as a module
-if (require.main === module) {
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-    });
-}
-
+// Export the app
 module.exports = app;
