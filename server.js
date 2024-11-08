@@ -7,7 +7,9 @@ const app = express();
 
 // CORS configuration
 app.use(cors({
-    origin: 'https://fresh-front.vercel.app',
+    origin: process.env.NODE_ENV === 'production' 
+        ? 'https://fresh-front.vercel.app'
+        : 'http://127.0.0.1:5500',
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Accept'],
     credentials: true
@@ -79,6 +81,14 @@ app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({ error: 'Something broke!' });
 });
+
+// Start the server if this file is run directly
+if (require.main === module) {
+    const PORT = process.env.PORT || 3001;
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    });
+}
 
 // Export the app
 module.exports = app;
