@@ -8,7 +8,7 @@ const app = express();
 // CORS configuration
 app.use(cors({
     origin: process.env.NODE_ENV === 'production' 
-        ? 'https://fresh-front.vercel.app'
+        ? 'https://freshandclean.co.uk'
         : 'http://127.0.0.1:5500',
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Accept'],
