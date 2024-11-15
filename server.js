@@ -8,9 +8,13 @@ const app = express();
 // CORS configuration
 app.use(cors({
     origin: process.env.NODE_ENV === 'production' 
-        ? ['https://freshandclean.co.uk','https://fresh-front.vercel.app', 'https://www.freshandclean.co.uk']
-        : 'http://127.0.0.1:5500',
-    methods: ['GET', 'POST', 'OPTIONS'],
+        ? [
+            'https://freshandclean.co.uk',
+            'https://www.freshandclean.co.uk',
+            'https://fresh-front.vercel.app'
+          ]
+        : ['http://localhost:5500', 'http://127.0.0.1:5500', 'http://localhost:3000'],
+    methods: ['POST', 'OPTIONS'],  // Only allow POST since it's just a form submission
     allowedHeaders: ['Content-Type', 'Accept'],
     credentials: true
 }));
