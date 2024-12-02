@@ -13,7 +13,7 @@ app.use(cors({
             'https://www.freshandclean.co.uk',
             'https://fresh-front.vercel.app'
           ]
-        : ['http://localhost:5500', 'http://127.0.0.1:5500', 'http://localhost:3000'],
+        : ['http://localhost:5500', 'http://127.0.0.1:5501', 'http://localhost:3000'],
     methods: ['POST', 'OPTIONS'],  // Only allow POST since it's just a form submission
     allowedHeaders: ['Content-Type', 'Accept'],
     credentials: true
@@ -39,25 +39,33 @@ app.get('/api/health', (req, res) => {
 
 // Form submission route
 app.post('/submit-form', async (req, res) => {
+    const { website, ...formData } = req.body;
+
+    // Check honeypot field
+    if (website) {
+        // If the honeypot field is filled, it's likely a bot
+        return res.status(400).json({ error: 'Spam detected' });
+    }
+
     try {
         // Log the received data
-        console.log('Form data received:', req.body);
+        console.log('Form data received:', formData);
         
         // Setup email data
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: process.env.EMAIL_USER,
-            subject: 'New Enquiry by ' + req.body.Name,
+            subject: 'New Enquiry by ' + formData.Name,
             text: `
                 New Enquiry Received:
                 
-                Full Name: ${req.body.Name}
-                Phone Number: ${req.body['Phone-Number']}
-                Address: ${req.body.Adress}
-                Email: ${req.body.Email}
-                Requested Service: ${req.body['Requested-service']}
-                Preferred Date: ${req.body['Day-of-service']}
-                Additional Notes: ${req.body.Message || 'None provided'}
+                Full Name: ${formData.Name}
+                Phone Number: ${formData['Phone-Number']}
+                Address: ${formData.Adress}
+                Email: ${formData.Email}
+                Requested Service: ${formData['Requested-service']}
+                Preferred Date: ${formData['Day-of-service']}
+                Additional Notes: ${formData.Message || 'None provided'}
                 
                 Submitted on: ${new Date().toLocaleString()}
             `
